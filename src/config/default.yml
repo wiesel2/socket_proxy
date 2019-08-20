@@ -1,0 +1,8 @@
+
+ServerConfig:
+    LocalPort: 8001
+    RemoteHost: 127.0.0.1
+    RemotePort: 8080
+ConCfg:
+    MaxRate: 20480
+    MaxConnCount: 1000

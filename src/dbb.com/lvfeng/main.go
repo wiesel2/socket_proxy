@@ -3,11 +3,13 @@ package main
 import (
 	"net"
 	"log"
-	"bbd.com/lvfeng/proxy"
+	"dbb.com/lvfeng/proxy"
 	"strconv"
 	"os"
 )
-
+//
+//
+//
 func trans(conn *net.Conn, m *proxy.ConnManger){
 	log.Printf("New Connect connected: %v", (*conn).RemoteAddr())
 

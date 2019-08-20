@@ -1,14 +1,11 @@
 package proxy
 import (
-	"net"
-	"time"
-	"log"
 	"io"
+	"log"
+	"net"
 	"runtime/debug"
+	"time"
 )
-
-var _MAX_CONN_TO int64 = 2000
-
 
 type Command int
 
@@ -97,7 +94,7 @@ func (conn *ConnectionPair) Update(){
 }
 
 func (conn ConnectionPair) TimeOut() bool{
-	if time.Now().UTC().UnixNano() - _MAX_CONN_TO < conn.LastUseAt{
+	if time.Now().UTC().UnixNano() - conn_max_idle_time < conn.LastUseAt{
 		return false
 	}
 	return true

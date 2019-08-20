@@ -5,7 +5,10 @@ import (
 	"log"
 )
 
+// public
 var instance *ConnManger
+
+// private
 var once sync.Once
 var addconnchan = make(chan ConnectionPair, 1000)
 var closeConnChan = make(chan ConnectionPair, 1000)
@@ -14,6 +17,7 @@ var monitorChan = make(chan InOutCount, 10000)
 var lock sync.RWMutex
 var watchD sync.WaitGroup
 
+// Get a global(singleton *ConnManger instance)
 func GetInstance() *ConnManger{
 	once.Do(func() {
 		instance = & ConnManger{Connections:make(map[string]ConnectionPair), Started:false, Closing:false}
@@ -21,10 +25,13 @@ func GetInstance() *ConnManger{
 	return instance
 }
 
+// in, out Byte count
 type InOutCount struct {
 	in, out int
 }
 
+// Connections map, restore a pair of connections instance
+// in/out
 type ConnManger struct{
 	Connections map[string]ConnectionPair
 	Started bool
@@ -33,14 +40,20 @@ type ConnManger struct{
 	out int
 }
 
+// Notice manager that a new connection pair built
 func (m *ConnManger) AddConnection(connection ConnectionPair){
 	addconnchan <- connection
 }
 
+// Get current alive connection pair
 func (m *ConnManger) ConnectionCount() int{
 	return len(m.Connections)
 }
 
+// Start Connection manager, including:
+//  - Traffic counter  (Monitor)
+//  - New connection pair handler
+//  - Connection pair close handler
 func (m *ConnManger) Start(){
 	if (*m).Started == true{
 		return
@@ -54,6 +67,7 @@ func (m *ConnManger) Start(){
 	watchD.Add(1)
 }
 
+// Close
 func (m *ConnManger) Close(){
 	defer watchD.Wait()
 	if(*m).Closing == true{
@@ -62,7 +76,7 @@ func (m *ConnManger) Close(){
 	(*m).Closing = true
 }
 
-
+// Add new connection pair
 func (m *ConnManger)handleNewConnection(){
 	for{
 		select {
@@ -86,10 +100,12 @@ func (m *ConnManger)handleNewConnection(){
 	}
 }
 
+// API: notify a connection pair closed.
 func ConnectionClose(conn ConnectionPair){
 	closeConnChan <- conn
 }
 
+// API: record traffic
 func TranCount(inc, outc int){
 	monitorChan <- InOutCount{in: (int)(inc / 8), out:(int)(outc / 8)}
 }
