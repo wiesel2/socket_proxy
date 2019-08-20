@@ -1,2 +1,2 @@
-# soeckt_proxy
+# Socket/TCP proxy
 go socket proxy
