@@ -1,11 +1,12 @@
 package main
 
 import (
-	"net"
 	"log"
-	"dbb.com/lvfeng/proxy"
-	"strconv"
+	"net"
 	"os"
+	"socket_proxy/src/dbb.com/lvfeng/cfg"
+	"socket_proxy/src/dbb.com/lvfeng/proxy"
+	"strconv"
 )
 //
 //
@@ -32,6 +33,7 @@ func trans(conn *net.Conn, m *proxy.ConnManger){
 
 func main() {
 	log.Printf("Socket proxy launching, %d", os.Getpid())
+	log.Printf("%v", cfg.DefaultCfg)
 	listener, err := net.Listen("tcp", "localhost:8001")
 	m := proxy.GetInstance()
 	m.Start()

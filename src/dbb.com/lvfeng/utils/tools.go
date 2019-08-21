@@ -43,6 +43,6 @@ func ProxyRoot() string{
 
 func DefaultCFGPath() (path string){
 	path = fmt.Sprintf( "%s%s%s%s%s", ProxyRoot(), string(os.PathSeparator),
-		"config", string(os.PathSeparator), "default.yml")
+		"config", string(os.PathSeparator), "default.yaml")
 	return
 }

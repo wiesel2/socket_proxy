@@ -4,6 +4,7 @@ import (
 	"log"
 	"net"
 	"runtime/debug"
+	"socket_proxy/src/dbb.com/lvfeng/cfg"
 	"time"
 )
 
@@ -45,11 +46,11 @@ type ConnectionPair struct{
 }
 
 
-func (conn *ConnectionPair)Enable() {
-	if (*conn).Closing{
+func (c *ConnectionPair)Enable() {
+	if (*c).Closing{
 		return
 	}
-	(*conn).Enabled = true
+	(*c).Enabled = true
 	// start new goroutine
 	//  1. record IO traffic, set alive
 	//  2. monitor connection, e.g. close(reconnect),
@@ -59,13 +60,13 @@ func (c *ConnectionPair) SetOutConnection(outCon *net.Conn){
 	(*c).OutConn = outCon
 }
 
-func monitorIO(conn *ConnectionPair) {
+func monitorIO(c *ConnectionPair) {
 	for {
 		select {
-		case command := <-(*conn).CommandChan:
+		case command := <-(*c).CommandChan:
 			{
 				if command == int(CommandClose) {
-					(*conn).Closing = true
+					(*c).Closing = true
 				}
 
 				if command == int(CommandReconnect) {
@@ -85,16 +86,16 @@ func (c ConnectionPair) IsEnabled() bool{
 	return c.Enabled
 }
 
-func (conn *ConnectionPair) Disable(){
-	(*conn).Enabled = false
+func (c *ConnectionPair) Disable(){
+	(*c).Enabled = false
 }
 
-func (conn *ConnectionPair) Update(){
-	(*conn).LastUseAt = time.Now().UTC().UnixNano()
+func (c *ConnectionPair) Update(){
+	(*c).LastUseAt = time.Now().UTC().UnixNano()
 }
 
-func (conn ConnectionPair) TimeOut() bool{
-	if time.Now().UTC().UnixNano() - conn_max_idle_time < conn.LastUseAt{
+func (c ConnectionPair) TimeOut() bool{
+	if time.Now().UTC().UnixNano() -cfg.Conn_max_idle_time < c.LastUseAt{
 		return false
 	}
 	return true
@@ -138,7 +139,7 @@ func (c *ConnectionPair)TransferIO(){
 func transferData(conn ConnectionPair, dir Direction, result chan TransResult){
 	var err error
 	var count int
-	var suc bool = true
+	var suc = true
 	defer func()  {
 		if e := recover(); e != nil {
 			log.Printf("transfer IO crased, err: %s\n, trace: %s", e, string(debug.Stack()))
@@ -214,14 +215,14 @@ func cleaner(conn ConnectionPair, result chan TransResult){
 		select {
 		case r := <- result:
 			if r.direction == TransDirectionUp{
-				src.Close()
-				dst.Close()
+				_ = src.Close()
+				_ = dst.Close()
 				count += 1
 				log.Printf("Upstream closed.")
 			}
 			if r.direction == TransDirectionDown{
-				src.Close()
-				dst.Close()
+				_ = src.Close()
+				_ = dst.Close()
 				log.Printf("Downstream closed.")
 				count += 1
 			}

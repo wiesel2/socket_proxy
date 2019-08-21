@@ -1,23 +1,22 @@
 package cfg
 
 import (
-	"dbb.com/lvfeng/utils"
 	"errors"
 	"fmt"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"strconv"
+	"socket_proxy/src/dbb.com/lvfeng/utils"
 	"sync"
-	yaml "gopkg.in/yaml.v2"
 )
 
-const (
-	CFG_T_INT = iota
-	CFG_T_FLOAT
-	CFG_T_BOOL
-	CFG_T_STR
-	CFG_T_LIST 	// slice
-	CFG_T_MAP	// dict, json
-)
+//const (
+//	CFG_T_INT = iota
+//	CFG_T_FLOAT
+//	CFG_T_BOOL
+//	CFG_T_STR
+//	CFG_T_LIST 	// slice
+//	CFG_T_MAP	// dict, json
+//)
 
 type SrvCfg struct {
 	LocalPort int `yaml:"LocalPort"`
@@ -25,23 +24,14 @@ type SrvCfg struct {
 	RemotePort int `yaml:"RemotePort"`
 }
 
-func (sc SrvCfg)Network() string{
-	return "tcp"
-}
-
-func (sc SrvCfg)String() string{
-	return sc.RemoteHost + ":" + strconv.Itoa(sc.RemotePort)
-}
-
-
-type ConCfg struct {
+type conCfg struct {
 	MaxRate int  `yaml:"MaxRate"`// KB/s
 	MaxConnCount int `yaml:"MaxConnCount"` // max connection count
 }
 
 type Cfg struct {
-	SrvCfg SrvCfg
-	ConCfg ConCfg
+	ServerConfig SrvCfg `yaml:"ServerConfig"`
+	ConCfg conCfg `yaml:"ConCfg"`
 }
 
 type BlackList struct {
@@ -62,6 +52,10 @@ func init(){
 		if err != nil{
 			panic(errors.New(fmt.Sprintf("Default cfg load failed, error: %s", err)))
 		}
-		yaml
+		err = yaml.UnmarshalStrict(yamlFile, DefaultCfg)
+		if err != nil{
+			panic(errors.New(fmt.Sprintf("Default cfg un marshal failed, error: %s", err)))
+		}
+		fmt.Printf("Default Config: %v", DefaultCfg)
 	})
 }
