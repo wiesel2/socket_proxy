@@ -41,21 +41,28 @@ type BlackList struct {
 var DefaultCfg Cfg
 var once sync.Once
 
-
+func LoadDefaultConfig()(error, Cfg){
+	var defaultCfg Cfg  = Cfg{}
+	defaultCfgPath := utils.DefaultCFGPath()
+	yamlFile, err := ioutil.ReadFile(defaultCfgPath)
+	if err != nil{
+		return errors.New(fmt.Sprintf("Default cfg load failed, error: %s", err)), defaultCfg
+	}
+	err = yaml.UnmarshalStrict(yamlFile, &defaultCfg)
+	if err != nil{
+		return errors.New(fmt.Sprintf("Default cfg un marshal failed, error: %s", err)), defaultCfg
+	}
+	fmt.Printf("Default Config: %v", defaultCfg)
+	return nil, defaultCfg
+}
 
 
 func init(){
 	once.Do(func() {
-		DefaultCfg = Cfg{}
-		defaultCfgPath := utils.DefaultCFGPath()
-		yamlFile, err := ioutil.ReadFile(defaultCfgPath)
+		var err error
+		err, DefaultCfg = LoadDefaultConfig()
 		if err != nil{
-			panic(errors.New(fmt.Sprintf("Default cfg load failed, error: %s", err)))
+			panic(err)
 		}
-		err = yaml.UnmarshalStrict(yamlFile, &DefaultCfg)
-		if err != nil{
-			panic(errors.New(fmt.Sprintf("Default cfg un marshal failed, error: %s", err)))
-		}
-		fmt.Printf("Default Config: %v", DefaultCfg)
 	})
 }

@@ -30,7 +30,6 @@ func trans(conn *net.Conn, m *proxy.ConnManger){
 
 }
 
-
 func main() {
 	log.Printf("Socket proxy launching, %d", os.Getpid())
 	log.Printf("%v", cfg.DefaultCfg)
