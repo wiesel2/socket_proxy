@@ -52,7 +52,7 @@ func init(){
 		if err != nil{
 			panic(errors.New(fmt.Sprintf("Default cfg load failed, error: %s", err)))
 		}
-		err = yaml.UnmarshalStrict(yamlFile, DefaultCfg)
+		err = yaml.UnmarshalStrict(yamlFile, &DefaultCfg)
 		if err != nil{
 			panic(errors.New(fmt.Sprintf("Default cfg un marshal failed, error: %s", err)))
 		}
