@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -18,22 +19,21 @@ func trans(conn *net.Conn, m *proxy.ConnManger){
 	if err != nil{
 		log.Fatal(err)
 	}
-	new_conn := proxy.ConnectionPair{
+	newConn := proxy.ConnectionPair{
 		InConn:conn,
 		OutConn:&outConnection,
 		CommandChan:make(chan int, 100),
 		HostPort:(*conn).RemoteAddr().String(),
 		DoneChan: make(chan bool),
 	}
-	(*m).AddConnection(new_conn)
-	new_conn.TransferIO()
-
+	(*m).AddConnection(newConn)
+	newConn.TransferIO()
 }
 
 func main() {
-	log.Printf("Socket proxy launching, %d", os.Getpid())
-	log.Printf("%v", cfg.DefaultCfg)
-	listener, err := net.Listen("tcp", "localhost:8001")
+	log.Printf("Socket proxy launching, pid: %d", os.Getpid())
+	localAddr := fmt.Sprintf("%s:%d", cfg.DefaultCfg.ServerConfig.LocalHost, cfg.DefaultCfg.ServerConfig.LocalPort)
+	listener, err := net.Listen("tcp", localAddr)
 	m := proxy.GetInstance()
 	m.Start()
 	if err != nil{
@@ -48,7 +48,6 @@ func main() {
 			log.Print(err)
 			continue
 		}
-
 		go trans(&conn, m)
 		}
 	}

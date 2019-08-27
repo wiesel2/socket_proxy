@@ -1,4 +1,5 @@
 ServerConfig:
+    LocalHost: 127.0.0.1
     LocalPort: 8001
     RemoteHost: 127.0.0.1
     RemotePort: 8080

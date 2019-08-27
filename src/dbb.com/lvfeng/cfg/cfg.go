@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"log"
 	"socket_proxy/src/dbb.com/lvfeng/utils"
 	"sync"
 )
@@ -19,6 +20,7 @@ import (
 //)
 
 type SrvCfg struct {
+	LocalHost string `yaml:"LocalHost"`
 	LocalPort int `yaml:"LocalPort"`
 	RemoteHost string `yaml:"RemoteHost"`
 	RemotePort int `yaml:"RemotePort"`
@@ -52,7 +54,7 @@ func LoadDefaultConfig()(error, Cfg){
 	if err != nil{
 		return errors.New(fmt.Sprintf("Default cfg un marshal failed, error: %s", err)), defaultCfg
 	}
-	fmt.Printf("Default Config: %v", defaultCfg)
+	log.Printf("Default Config: %v", defaultCfg)
 	return nil, defaultCfg
 }
 
